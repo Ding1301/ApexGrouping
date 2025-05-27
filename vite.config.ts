@@ -9,7 +9,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
 export default defineConfig({
   // 如果部署在根目录，直接使用 '/'
-  base: '/apexVue3/',
+  base: '/',
   
   plugins: [
     vue(),
@@ -29,16 +29,14 @@ export default defineConfig({
   },
   
   build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
             return id.toString().split('node_modules/')[1].split('/')[0].toString();
           }
-        },
-      },
-    },
+        }
+      }
+    }
   },
 });
