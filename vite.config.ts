@@ -27,6 +27,7 @@ export default defineConfig({
   // 其他配置保持不变
   server: {
     port: 3000,
+    strictPort: false
   },
   build: {
     rollupOptions: {

@@ -30,12 +30,12 @@ import GroupingView from '@/views/groupingView.vue'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'HomeView',
+    name: 'Home',
     component: HomeView
   },
   {
     path: '/grouping',
-    name: 'GroupingView',
+    name: 'Grouping',
     component: GroupingView
   }
 ]
