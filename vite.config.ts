@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 
 export default defineConfig({
   // ❗️ 关键修改：设置 base 为项目路径（仓库名）
-  base: '/ApexGrouping/', // 与 GitHub Pages 路径一致
+  base: process.env.NODE_ENV === 'production' ? '/ApexGrouping/' : '/', // 与 GitHub Pages 路径一致
   
   plugins: [
     vue(),
