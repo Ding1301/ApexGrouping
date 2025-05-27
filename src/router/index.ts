@@ -25,9 +25,7 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 
 import HomeView from '@/views/homeView.vue'
-
 import GroupingView from '@/views/groupingView.vue'
-
 
 const routes: RouteRecordRaw[] = [
   {
@@ -42,8 +40,9 @@ const routes: RouteRecordRaw[] = [
   }
 ]
 
+// 指定 base 参数
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHashHistory('/ApexGrouping/'),
   routes
 })
 

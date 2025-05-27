@@ -9,7 +9,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
 export default defineConfig({
   // 如果部署在根目录，直接使用 '/'
-  base: '/',
+  base: process.env.NODE_ENV === 'production' ? '/ApexGrouping/' : '/',
   
   plugins: [
     vue(),
