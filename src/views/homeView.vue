@@ -46,6 +46,7 @@ import partyCrasher from '@/assets/images/map/派对破坏者.jpg';
 import overflow from '@/assets/images/map/溢出.jpg';
 import phaseRunner from '@/assets/images/map/相位奔跑者.jpg';
 import iconPt50 from '@/assets/images/icon-pt50.png';
+import preview from '@/assets/images/bgm/preview.jpg';
 
 const router = useRouter();
 const videoRef = ref(null);
@@ -64,7 +65,8 @@ const imagesToPreload = [
   partyCrasher,
   overflow,
   phaseRunner,
-  iconPt50
+  iconPt50,
+  preview
 ];
 
 // 预加载图片函数
