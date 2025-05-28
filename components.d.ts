@@ -19,5 +19,6 @@ declare module 'vue' {
     ElRow: typeof import('element-plus/es')['ElRow']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SpeechInput: typeof import('./src/components/speechInput.vue')['default']
   }
 }

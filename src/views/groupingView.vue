@@ -23,9 +23,6 @@
               <el-form-item label="战斗场数：" label-width="120px"  placeholder="session">
                 <el-input v-model="formInline.session" clearable placeholder="请输入战斗场数：" />
               </el-form-item>
-              <el-form-item label="观战人数：" label-width="120px" placeholder="watch">
-                <el-input v-model="formInline.watch" clearable placeholder="请输入观战人数" />
-              </el-form-item>
               <el-form-item label="战斗人员名单" label-width="120px" placeholder="nameList">
                 <el-input v-model="formInline.nameList" style="width: 192px" autosize type="textarea" placeholder="请输入名单,以;分隔"/>
               </el-form-item>
@@ -108,8 +105,6 @@ const currentMapIndex = ref(0);
 const formInline = reactive({
   // 战斗场次
   session: '',
-  // 观战人数
-  watch: '',
   // 参战名单
   nameList: []
 })
@@ -148,7 +143,6 @@ const selectNextRandomMap = () => {
   usedIndices.value.push(newIndex);
   currentMapIndex.value = newIndex;
 
-  console.log(currentMap.value,'currentMap')
 };
 
 // 获取当前选中的地图
@@ -167,37 +161,55 @@ const submission = () => {
   // 2. 获取场次数量
   const sessionCount = parseInt(formInline.session) || 1;
   
-  // 3. 为每个场次创建独立的分组
+  // 3. 用于存储历史分组，避免重复
+  const historyGroups = new Set();
+  
+  // 4. 为每个场次创建独立的分组
   const allSessions = [];
   
   for (let s = 0; s < sessionCount; s++) {
-    // 每场都重新打乱数组，生成新的随机顺序
-    const shuffledNames = [...namesArray];
-    for (let i = shuffledNames.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledNames[i], shuffledNames[j]] = [shuffledNames[j], shuffledNames[i]];
-    }
+    let validGroup = false;
+    let shuffledNames, participants, currentUnused, sessionGroups;
     
-    // 固定每局6人参与，剩下的作为未参与成员
-    const participants = shuffledNames.slice(0, 6);
-    const currentUnused = shuffledNames.slice(6);
-    
-    // 处理本场次的分组（每组固定3人）
-    const sessionGroups = [];
-    const memberCount = participants.length;
-    const groupCount = Math.ceil(memberCount / 3); // 计算总组数
-    
-    for (let i = 0; i < groupCount; i++) {
-      const start = i * 3;
-      const groupMembers = participants.slice(start, start + 3);
+    // 循环生成直到找到不重复的分组
+    while (!validGroup) {
+      // 每场都重新打乱数组，生成新的随机顺序
+      shuffledNames = [...namesArray];
+      for (let i = shuffledNames.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledNames[i], shuffledNames[j]] = [shuffledNames[j], shuffledNames[i]];
+      }
       
-      // 为每个成员添加序号（本场次内的序号）
-      const numberedGroup = groupMembers.map((name, index) => {
-        const position = start + index + 1; // 全局序号（从1开始）
-        return `第${position}位: ${name}`;
-      });
+      // 固定每局6人参与，剩下的作为未参与成员
+      participants = shuffledNames.slice(0, 6);
+      currentUnused = shuffledNames.slice(6);
       
-      sessionGroups.push(numberedGroup);
+      // 处理本场次的分组（每组固定3人）
+      sessionGroups = [];
+      const memberCount = participants.length;
+      const groupCount = Math.ceil(memberCount / 3); // 计算总组数
+      
+      for (let i = 0; i < groupCount; i++) {
+        const start = i * 3;
+        const groupMembers = participants.slice(start, start + 3);
+        
+        // 为每个成员添加序号（本场次内的序号）
+        const numberedGroup = groupMembers.map((name, index) => {
+          const position = start + index + 1; // 全局序号（从1开始）
+          return `第${position}位: ${name}`;
+        });
+        
+        sessionGroups.push(numberedGroup);
+      }
+      
+      // 生成当前分组的唯一标识（排序后确保顺序无关）
+      const groupKey = generateGroupKey(sessionGroups);
+      
+      // 检查是否重复
+      if (!historyGroups.has(groupKey)) {
+        historyGroups.add(groupKey);
+        validGroup = true;
+      }
     }
     
     // 将本场次的所有分组和未参与成员添加到结果中
@@ -217,14 +229,33 @@ const submission = () => {
   groupedTeams.value = allSessions.flatMap(session => session.groups);
   
   // 存储每局未参与成员信息（可选，根据需要保留）
-  unusedMembersPerSession.value = allSessions.map(session => ({
-    sessionNumber: session.sessionNumber,
-    members: session.unusedMembers
-  }));
+  // unusedMembersPerSession.value = allSessions.map(session => ({
+  //   sessionNumber: session.sessionNumber,
+  //   members: session.unusedMembers
+  // }));
 
   for (let i = 1; i <= formInline.session; i++) {
     selectNextRandomMap();
   }
+};
+
+// 生成分组的唯一标识（排序后确保顺序无关）
+function generateGroupKey(groups) {
+  // 对每个组的成员进行排序并转换为字符串
+  const sortedGroups = groups.map(group => 
+    group.slice().sort().join('|')
+  );
+  
+  // 对所有组进行排序（确保组间顺序无关）
+  return sortedGroups.sort().join('-');
+}
+
+// 生成分组哈希函数（将A队和B队成员排序后拼接为字符串）
+const generateGroupHash = (participants) => {
+  // 假设前3人为A队，后3人为B队（根据实际分组逻辑调整）
+  const teamA = participants.slice(0, 3).sort().join('|');
+  const teamB = participants.slice(3, 6).sort().join('|');
+  return `${teamA}-${teamB}`;
 };
 </script>
 
